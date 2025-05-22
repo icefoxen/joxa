@@ -1,7 +1,7 @@
 VSN=0.1.0
-ERL=$(shell which erl)
-ERLC=$(shell which erlc)
-REBAR=$(shell which rebar3)
+ERL=/usr/local/bin/erl
+ERLC=/usr/local/bin/erlc
+REBAR=$(abspath $(CURDIR)/rebar)
 
 # well this test doesn't seem to work
 ifeq ($(REBAR),)
