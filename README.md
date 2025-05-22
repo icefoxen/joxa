@@ -44,6 +44,7 @@ Date:   Wed Mar 6 10:42:43 2019 -0800
 
 So if the author has all the bootstrap-y state checked into the repo correctly, we shoooould be able to install Erlang/OTP 21 and get a working version of this, then maybe roll forward one version at a time.  Looking at previous compilation breaks and their fixes may be enlightening as well?  ...ok not really.
 
+Renaming `rebar.config` to `rebar3.config` gets some different behavior out of rebar3, but not especially promising ones.  It *appears* to build *something* but all the unit tests break.
 
 Original readme below:
 
