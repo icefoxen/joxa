@@ -1,6 +1,6 @@
 VSN=0.1.0
-ERL=/usr/local/bin/erl
-ERLC=/usr/local/bin/erlc
+ERL=/usr/bin/erl
+ERLC=/usr/bin/erlc
 REBAR=$(abspath $(CURDIR)/rebar)
 
 # well this test doesn't seem to work

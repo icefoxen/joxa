@@ -93,6 +93,53 @@ ok
 joxa-is> (joxa-core/+ 1 2 3)
 ```
 
+Ok but building the thing with `rebar` and OTP/24 fails:
+
+```
+make[1]: Entering directory '/home/NEA.com/simon.heath/my.src/joxa'
+/usr/bin/erl -noshell  -pa /home/NEA.com/simon.heath/my.src/joxa/deps/cf/ebin  -pa /home/NEA.com/simon.heath/my.src/joxa/deps/cucumberl/ebin  -pa /home/NEA.com/simon.heath/my.src/joxa/deps/erlware_commons/ebin  -pa /home/NEA.com/simon.heath/my.src/joxa/deps/getopt/ebin  -pa /home/NEA.com/simon.heath/my.src/joxa/deps/proper/ebin -pa /home/NEA.com/simon.heath/my.src/joxa/ebin -pa /home/NEA.com/simon.heath/my.src/joxa/.eunit -s 'joxa-compiler' main -extra -o /home/NEA.com/simon.heath/my.src/joxa/ebin /home/NEA.com/simon.heath/my.src/joxa/src/joxa-core.jxa
+{"init terminating in do_boot",{badarg,[{erlang,element,[1,[quasiquote,[{'--fun',erlang,'=/='},[unquote,a1],[unquote,a2]]]],[{error_info,#{module=>erl_erts_errors}}]},{'joxa-cmp-expr','make-expr',3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,359}]},{'joxa-cmp-expr','do-function-body',6,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,280}]},{'joxa-cmp-defs','make-function1',5,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,17}]},{'joxa-cmp-defs','make-definition',3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,53}]},{'joxa-compiler','internal-forms',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,312}]},{'joxa-compiler',forms,3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,322}]},{'joxa-compiler','do-compile',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,573}]}]}}
+init terminating in do_boot ({badarg,[{erlang,element,[1,[_]],[{_}]},{joxa-cmp-expr,make-expr,3,[{_},{_}]},{joxa-cmp-expr,do-function-body,6,[{_},{_}]},{joxa-cmp-defs,make-function1,5,[{_},{_}]},{joxa-cmp-defs,make-definition,3,[{_},{_}]},{joxa-compiler,internal-forms,2,[{_},{_}]},{joxa-compiler,forms,3,[{_},{_}]},{joxa-compiler,do-compile,2,[{_},{_}]}]})
+
+Crash dump is being written to: erl_crash.dump...done
+```
+
+uhhhh let's take that apart some:
+
+```erl
+{"init terminating in do_boot",
+  {badarg,
+    [
+      {erlang,element,
+        [1,
+          [quasiquote,[{'--fun',erlang,'=/='},[unquote,a1],[unquote,a2]]]],
+        [{error_info,#{module=>erl_erts_errors}}]},
+      {'joxa-cmp-expr','make-expr',3, [{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,359}]},
+      {'joxa-cmp-expr','do-function-body',6,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,280}]},
+      {'joxa-cmp-defs','make-function1',5,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,17}]},
+      {'joxa-cmp-defs','make-definition',3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,53}]},
+      {'joxa-compiler','internal-forms',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,312}]},
+      {'joxa-compiler',forms,3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,322}]},
+      {'joxa-compiler','do-compile',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,573}]}
+    ]
+  }
+}
+{badarg,
+  [
+    {erlang,element,[1,[_]],[{_}]},
+    {joxa-cmp-expr,make-expr,3,[{_},{_}]},
+    {joxa-cmp-expr,do-function-body,6,[{_},{_}]},
+    {joxa-cmp-defs,make-function1,5,[{_},{_}]},
+    {joxa-cmp-defs,make-definition,3,[{_},{_}]},
+    {joxa-compiler,internal-forms,2,[{_},{_}]},
+    {joxa-compiler,forms,3,[{_},{_}]},
+    {joxa-compiler,do-compile,2,[{_},{_}]}
+  ]
+}
+```
+
+...Oh thank Eris it's an actual stack trace, something handed something bad to `erlang:element`.
+
 # Language improvements
 
 Or at least, I think they're improvements.  These are just notes of things that stand out at me.
