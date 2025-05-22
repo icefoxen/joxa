@@ -1,3 +1,53 @@
+Gonna try to make this runnable on modern systems.  Currently it is not.
+
+After some cosmetic Rebar fixes, it does not run:
+
+```
+$ rebar3 compile
+===> Verifying dependencies...
+===> Analyzing applications...
+===> Compiling joxa
+make: Circular ~/my.src/joxa/ebin/joxa-compiler.beam <- ~/my.src/joxa/ebin/joxa-compiler.beam dependency dropped.
+/usr/lib/erlang/erts-12.2.1/bin/erl -noshell  -pa ~/my.src/joxa/ebin -pa ~/my.src/joxa/.eunit -s 'joxa-compiler' main -extra -o ~/my.src/joxa/ebin ~/my.src/joxa/src/joxa-compiler.jxa
+{"init terminating in do_boot",{undef,[{'joxa-compiler',main,[],[]},{init,start_em,1,[]},{init,do_boot,3,[]}]}}
+init terminating in do_boot ({undef,[{joxa-compiler,main,[],[]},{init,start_em,1,[]},{init,do_boot,3,[]}]})
+
+Crash dump is being written to: erl_crash.dump...done
+make: *** [~/my.src/joxa/build-support/core-build.mkf:79: ~/my.src/joxa/ebin/joxa-compiler.beam] Error 1
+===> Hook for compile failed!
+```
+
+Not sure whether that circular reference matters, but that error is not printed out when I just try to run the command by hand:
+
+```
+$ erl -pa ~/my.src/joxa/ebin -pa ~/my.src/joxa/.eunit -s 'joxa-compiler' main -extra -o ~/my.src/joxa/ebin ~/my.src/joxa/src/joxa-compiler.jxa
+{"init terminating in do_boot",{undef,[{'joxa-compiler',main,[],[]},{init,start_em,1,[]},{init,do_boot,3,[]}]}}
+init terminating in do_boot ({undef,[{joxa-compiler,main,[],[]},{init,start_em,1,[]},{init,do_boot,3,[]}]})
+
+Crash dump is being written to: erl_crash.dump...done
+```
+
+It looks like the compiler is bootstrapped, so no plain erlang code exists anymore outside of tests, and the bootstrap compiler is provided as Erlang syntax trees in `src/ast/*`.  Something is just wrong in those ast files; either the format has changed, or the compiler invocation is missing something 'cause it seems like it can't find the `joxa-compiler` module in the first place.
+
+Looks like the last version of Erlang that this was tested with was Erlang/OTP 21:
+
+```
+commit 8a8594e9c81737be4c81af5a4a8d628211f2f510
+Merge: 8798558 6c5730d
+Author: Eric Merritt <ericbmerritt@gmail.com>
+Date:   Wed Mar 6 10:42:43 2019 -0800
+
+    Merge pull request #89 from hhkbp2/fix_comp_erl21
+    
+    Fix compilation breaks for Erlang/OTP 21
+```
+
+So if the author has all the bootstrap-y state checked into the repo correctly, we shoooould be able to install Erlang/OTP 21 and get a working version of this, then maybe roll forward one version at a time.  Looking at previous compilation breaks and their fixes may be enlightening as well?  ...ok not really.
+
+
+Original readme below:
+
+
 Joxa
 ====
 

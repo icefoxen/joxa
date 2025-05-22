@@ -1,8 +1,9 @@
 VSN=0.1.0
 ERL=$(shell which erl)
 ERLC=$(shell which erlc)
-REBAR=$(shell which rebar)
+REBAR=$(shell which rebar3)
 
+# well this test doesn't seem to work
 ifeq ($(REBAR),)
 	$(error "Rebar not available on this system")
 endif
