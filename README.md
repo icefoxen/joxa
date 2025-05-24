@@ -106,7 +106,7 @@ Crash dump is being written to: erl_crash.dump...done
 
 uhhhh let's take that apart some:
 
-```erl
+```erlang
 {"init terminating in do_boot",
   {badarg,
     [
@@ -139,6 +139,39 @@ uhhhh let's take that apart some:
 ```
 
 ...Oh thank Eris it's an actual stack trace, something handed something bad to `erlang:element`.
+
+## Next sprint
+
+When I do `make test` with OTP 27 and rebar2 then it mostly appears to work up to a point, but then I get:
+
+```
+make[1]: Entering directory '/home/icefox/my.src/srht/icefox/joxa'
+/usr/bin/erl -noshell -pa /home/icefox/my.src/srht/icefox/joxa/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/cf/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/cucumberl/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/erlware_commons/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/getopt/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/proper/ebin \
+            -s jxa_bootstrap do_bootstrap /home/icefox/my.src/srht/icefox/joxa/ebin /home/icefox/my.src/srht/icefox/joxa/src/ast/joxa-cmp-expr.ast -s init stop
+{error,{badmatch,{error,{6273,erl_parse,["syntax error before: ","'else'"]}}},[{jxa_bootstrap,do_bootstrap,1,[{file,"src/jxa_bootstrap.erl"},{line,7}]},{init,start_it,1,[]},{init,start_em,1,[]},{init,do_boot,3,[]}]}
+Runtime terminating during boot ({{badmatch,{error,{6273,erl_parse,["syntax error before: ","'else'"]}}},[{jxa_bootstrap,do_bootstrap,1,[{file,"src/jxa_bootstrap.erl"},{line,7}]},{init,start_it,1,[]},{init,start_em,1,[]},{init,do_boot,3,[]}]})
+```
+
+It appears that the AST file(s) contain tokens named `else` in several places, and `else` is now(?) parsed as a token instead of an atom.  Editing all the AST files (including `joxa-compiler.ast`!) to turn `else` into `'else'` appears to fix that, huzzah!
+
+Next it appears the compiler itself tries to build, and fails with:
+
+```erlang
+% /usr/bin/erl -noshell  -pa /home/icefox/my.src/srht/icefox/joxa/deps/cf/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/cucumberl/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/erlware_commons/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/getopt/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/proper/ebin -pa /home/icefox/my.src/srht/icefox/joxa/ebin -pa /home/icefox/my.src/srht/icefox/joxa/.eunit -s 'joxa-compiler' main -extra -o /home/icefox/my.src/srht/icefox/joxa/ebin /home/icefox/my.src/srht/icefox/joxa/src/joxa-core.jxa
+{error,badarg,
+  [{erlang,element,
+    [1,
+      [quasiquote,
+        [
+          {'--fun',erlang,'=/='},
+          [unquote,a1],
+          [unquote,a2]]]],
+    [{error_info,#{module=>erl_erts_errors}}]},
+   {'joxa-cmp-expr','make-expr',3,
+    [{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,359}]},
+   {'joxa-cmp-expr','do-function-body',6,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,280}]},{'joxa-cmp-defs','make-function1',5,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,17}]},{'joxa-cmp-defs','make-definition',3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,53}]},{'joxa-compiler','internal-forms',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,312}]},{'joxa-compiler',forms,3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,322}]},{'joxa-compiler','do-compile',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,573}]}]}
+Runtime terminating during boot ({badarg,[{erlang,element,[1,[quasiquote,[{'--fun',erlang,'=/='},[unquote,a1],[unquote,a2]]]],[{error_info,#{module=>erl_erts_errors}}]},{'joxa-cmp-expr','make-expr',3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,359}]},{'joxa-cmp-expr','do-function-body',6,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,280}]},{'joxa-cmp-defs','make-function1',5,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,17}]},{'joxa-cmp-defs','make-definition',3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,53}]},{'joxa-compiler','internal-forms',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,312}]},{'joxa-compiler',forms,3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,322}]},{'joxa-compiler','do-compile',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,573}]}]})
+```
 
 # Language improvements
 
