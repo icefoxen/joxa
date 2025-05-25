@@ -140,7 +140,7 @@ assert_cmd_output_test() ->
                      (require joxa-eunit))
 
                 (defn+ assert-cmd-output-test ()
-                    (joxa-eunit/assert-cmd-output  (\\E . (\\s . (\\h . (\\e . (\\l . (\\l . _)))))) \"erl -s init stop\"))
+                    (joxa-eunit/assert-cmd-output  (\\E . (\\r . (\\l . (\\a . (\\n . (\\g . _)))))) \"erl -s init stop\"))
 
                 (defn+ assert-cmd-output-test2 ()
                     (joxa-eunit/assert-cmd-output  \"Foo!\" \"erl -s init stop\"))">>,

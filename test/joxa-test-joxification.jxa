@@ -34,3 +34,10 @@
   (get-path-renamed))
 
 (joxa-eunit/testable)
+
+(ns curses
+    (require joxa-eunit joxa-assert))
+
+(defn this-should-pass_test ()
+  :true)
+(joxa-eunit/testable)

@@ -294,7 +294,23 @@ Erlang/OTP 28 [erts-16.0] [source] [64-bit] [smp:12:12] [ds:12:12:10] [async-thr
 
 ## Next day
 
+well I fixed some tests in eunit that were very annoying 'cause eunit changed how it gives you the data and the error reporting for bad pattern matches abjectly sucks.  Tree-sitter's errors have spoiled me.
 
+That seems to be all the erlang+eunit tests?  Oh but this guy in the actual joxa tests seems to be failing still:
+
+```erlang
+% /home/icefox/.asdf/shims/erl -noshell  -pa /home/icefox/my.src/srht/icefox/joxa/deps/cf/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/cucumberl/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/erlware_commons/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/getopt/ebin  -pa /home/icefox/my.src/srht/icefox/joxa/deps/proper/ebin -pa /home/icefox/my.src/srht/icefox/joxa/ebin -pa /home/icefox/my.src/srht/icefox/joxa/.eunit -s 'joxa-build-support' main proper /home/icefox/my.src/srht/icefox/joxa/.eunit -s init stop
+{error,badarg,
+  [{erlang,get_module_info,['joxa-test-joxification-use2',exports],[{error_info,#{module=>erl_erts_errors}}]},
+   {'joxa-build-support','-proper-test-app/1-anonymous-0-',1,[{file,"/home/icefox/my.src/srht/icefox/joxa/src/joxa-build-support.jxa"},{line,69}]},
+   {lists,foreach_1,2,[{file,"lists.erl"},{line,2641}]},
+   {init,start_it,1,[]},
+   {init,start_em,1,[]},
+   {init,do_boot,3,[]}
+  ]}
+```
+
+Ok well that calls `erlang:get_module_info/2` which is undocumented, so it probably shouldn't be doing that.  It's doing it as part of the introspection stuff that loads etest though, and... it appears to be calling it correctly?  The `.eunit/joxa-test-joxification-use2.beam` file appears to exist though.  And when I comment out the `joxa-test-joxification-use2` portions then it just fails on earlier portions in the same file.  ...and I remove that file it fails on some earlier(?) test.  Soooo something cursed is happening with how it finds modules for eunit, and the last test it runs always fails.  Adding a new test at the end of `test/joxa-test-joxification.jxa` confirms this hypothesis.  Not really sure what to do about that, but I'm not gonna consider it a blocker for now.
 
 # Language improvements
 
@@ -315,6 +331,7 @@ Or at least, I think they're improvements.  These are just notes of things that 
 * `let*` exists, does it work the way I expect it to from CL?  Is there even a non-star `let`?
 * Just for reference, it appears that macros are not hygenic.  (This is probably the choice I'd make too.)
 * Oh we should do the Elixir thing where strings use binaries by default, and there's a separate type for list-strings.
+* Erlang can now pattern match on substrings more nicely, we should adopt that too.
 
 
 ## Tooling
@@ -363,7 +380,7 @@ error: {error,function_clause} : error: {error,undef} : error: {error,undef} : e
 ```
 
 Original readme below:
-
+test/joxa-test-joxification.jxa
 
 Joxa
 ====
