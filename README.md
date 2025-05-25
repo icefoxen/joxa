@@ -277,8 +277,9 @@ Well worst case I can write some Erlang code to do what I want, compile that to 
 
 We had a tool for that somewhere.  <https://github.com/asdf-vm/asdf>, that was it.  Add `.tool-versions` file, do `asdf install erlang`, wait for it to build, aaaaaaand now rebar doesn't work, huzzah.  Ok rebuild that with OTP 21 as well, make a copy of it into the joxa dir, clean up all the old beam files, do `make get-deps && make test && make escript` aaaaaaaand... all the tests fail.  Right.  Great.  Okay.  This... this worked before, didn't it???
 
-Ok I just broke the Makefile like a noob.  Theeeeeere we go, now it builds.  And `make bootstrap` does a bootstrap build and writes out the AST files, whiiiiiiich adds piles of noise to the git changes in the file paths and also undoes our `else` fix above.  That's ok, we can fix it for real.
+Ok I just broke the Makefile like a noob.  Theeeeeere we go, now it builds.  And `make bootstrap` does a bootstrap build and writes out the AST files, whiiiiiiich adds piles of noise to the git changes in the file paths and also undoes our `else` fix above.  That's ok, we can fix it for real.  Just rename variables named `else` to `otherwise` I guess.
 
+...what was I even trying to do?  Oh right, weird pattern matching in `joxa-cmp-expr/make-expr`.  Ok that seems easily fixed.
 
 # Language improvements
 
@@ -309,6 +310,7 @@ Or at least, I think they're improvements.  These are just notes of things that 
 * Can we do anything with `dialyzer`?  Maybe.  That's a bit of a future subproject.
 * Hoo boy the backtraces could use some work.
 * If we keep the AST compilation, try to make it output only the relative file path in the line numbers please, not the absolute path.  Makes git diff's much cleaner...
+* Gensym's too, plz.
 
 
 ## Bugs

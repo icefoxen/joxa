@@ -355,10 +355,11 @@
              (e
               (joxa-cmp-ctx/add-error-r-nil-ctx ctx path0 {:invalid-reference e arg}))))
       ; ...why is this not just matching on
-      ; {:--fun _}
-      (arg (when (erlang/and
-                  (erlang/is_tuple arg)
-                  (== (erlang/element 1 arg) :--fun)))
+      ; {:--fun f a}
+      ; (arg (when (erlang/and
+      ;             (erlang/is_tuple arg)
+      ;             (== (erlang/element 1 arg) :--fun)))
+      ({:--fun f a}
            (make-fun path0 ctx form))
       (arg (when (erlang/is_tuple arg))
            (make-tuple-expr path0 ctx (erlang/tuple_to_list arg)))
