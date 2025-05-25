@@ -275,7 +275,10 @@ Well worst case I can write some Erlang code to do what I want, compile that to 
 
 ...Or, since I know the compiler runs on old OTP versions and they're not too difficult to build, just fix the compiler and have it compile itself.  That would... *probably* be the smart thing to do.
 
-We had a tool for that somewhere.  <https://github.com/asdf-vm/asdf>, that was it.  Add `.tool-versions` file, do `asdf install erlang`, wait for it to build, aaaaaaand now rebar doesn't work, huzzah.  Ok rebuild that with OTP 21 as well, make a copy of it into the joxa dir, clean up all the old beam files, do `make get-deps; make test` aaaaaaaand... all the tests fail.  Right.  Great.  Okay.
+We had a tool for that somewhere.  <https://github.com/asdf-vm/asdf>, that was it.  Add `.tool-versions` file, do `asdf install erlang`, wait for it to build, aaaaaaand now rebar doesn't work, huzzah.  Ok rebuild that with OTP 21 as well, make a copy of it into the joxa dir, clean up all the old beam files, do `make get-deps && make test && make escript` aaaaaaaand... all the tests fail.  Right.  Great.  Okay.  This... this worked before, didn't it???
+
+Ok I just broke the Makefile like a noob.  Theeeeeere we go, now it builds.  And `make bootstrap` does a bootstrap build and writes out the AST files, whiiiiiiich adds piles of noise to the git changes in the file paths and also undoes our `else` fix above.  That's ok, we can fix it for real.
+
 
 # Language improvements
 
@@ -291,6 +294,7 @@ Or at least, I think they're improvements.  These are just notes of things that 
 * The distinctions between `if/when/unless` don't really spark joy
 * Records are as clunky as they are in Erlang (is this a bad thing?)
 * Doesn't include Erlang maps (they post-date it)
+* Make it escape atoms with quotes so you can't generate invalid Erlang AST's by using variables named `else` and such.
 
 
 ## Tooling
@@ -304,6 +308,7 @@ Or at least, I think they're improvements.  These are just notes of things that 
 * Honestly would be nice if it just compiled to readable Erlang, like Fennel does.  Could we even make an antifennel-like Erlang-to-Joxa compiler?  Maybe!
 * Can we do anything with `dialyzer`?  Maybe.  That's a bit of a future subproject.
 * Hoo boy the backtraces could use some work.
+* If we keep the AST compilation, try to make it output only the relative file path in the line numbers please, not the absolute path.  Makes git diff's much cleaner...
 
 
 ## Bugs

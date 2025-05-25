@@ -250,8 +250,8 @@
                        (case arg
                          (_ (when (erlang/is_atom arg))
                             (joxa-cmp-ctx/add-reference-to-scope-ctx path0 ctx arg -1 (cerl/c_var arg)))
-                         (else
-                          (joxa-cmp-ctx/add-error-ctx ctx path0 {:arg-is-not-proper-name else}))))
+                         (otherwise
+                          (joxa-cmp-ctx/add-error-ctx ctx path0 {:arg-is-not-proper-name otherwise}))))
                    args0)
     (let* (arg-detail (gen-args (joxa-cmp-path/traverse-path path0) ctx args0 []))
       ;; Correctly setup forward declarations
@@ -336,8 +336,8 @@
          (cerl/ann_c_cons annots
                           cerl-h
                           cerl-t)))
-      (else
-       (make-quasi-element path0 ctx else)))))
+      (otherwise
+       (make-quasi-element path0 ctx otherwise)))))
 
 (defn+ make-expr (path0 ctx form)
   (let* (annots (joxa-cmp-ctx/annots-from-context [] path0 ctx))

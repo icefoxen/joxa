@@ -218,8 +218,8 @@
                                (case def
                                  ({var body _ _}
                                   {var body})
-                                 (else
-                                  (erlang/throw {:error-processing-defs else}))))
+                                 (otherwise
+                                  (erlang/throw {:error-processing-defs otherwise}))))
                            (joxa-cmp-ctx/get-definitions ctx))
            result (erl-comp ctx (cerl/ann_c_module annots namespace-name exports attrs defs)
                             compile-type))
