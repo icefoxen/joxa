@@ -169,9 +169,113 @@ Next it appears the compiler itself tries to build, and fails with:
     [{error_info,#{module=>erl_erts_errors}}]},
    {'joxa-cmp-expr','make-expr',3,
     [{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,359}]},
-   {'joxa-cmp-expr','do-function-body',6,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,280}]},{'joxa-cmp-defs','make-function1',5,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,17}]},{'joxa-cmp-defs','make-definition',3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,53}]},{'joxa-compiler','internal-forms',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,312}]},{'joxa-compiler',forms,3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,322}]},{'joxa-compiler','do-compile',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,573}]}]}
-Runtime terminating during boot ({badarg,[{erlang,element,[1,[quasiquote,[{'--fun',erlang,'=/='},[unquote,a1],[unquote,a2]]]],[{error_info,#{module=>erl_erts_errors}}]},{'joxa-cmp-expr','make-expr',3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,359}]},{'joxa-cmp-expr','do-function-body',6,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,280}]},{'joxa-cmp-defs','make-function1',5,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,17}]},{'joxa-cmp-defs','make-definition',3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,53}]},{'joxa-compiler','internal-forms',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,312}]},{'joxa-compiler',forms,3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,322}]},{'joxa-compiler','do-compile',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,573}]}]})
+   {'joxa-cmp-expr','do-function-body',6,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-expr.jxa"},{line,280}]},
+   {'joxa-cmp-defs','make-function1',5,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,17}]},
+   {'joxa-cmp-defs','make-definition',3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-defs.jxa"},{line,53}]},
+   {'joxa-compiler','internal-forms',2,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,312}]},
+   {'joxa-compiler',forms,3,[{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,322}]},
+   {'joxa-compiler','do-compile',2,
+     [{file,"/Users/emerrit/workspace/joxa/src/joxa-compiler.jxa"},{line,573}]}]}
 ```
+
+Ok that's the same error we ran into earlier, something handing a bad arg to `erlang:element/2`.  Cause it gets given a list instead of a tuple?  Well that doesn't seem to have changed since OTP 21: <https://www.erlang.org/docs/20/man/erlang#element-2>.  Error points to `joxa-cmp-expr.jxa` line 359, which is:
+
+```
+  (case form
+    ...
+      (arg (when (erlang/and
+                  (erlang/is_tuple arg)
+                  (== (erlang/element 1 arg) :--fun)))
+           (make-fun path0 ctx form))
+    ...)
+```
+
+hmm, it's checking if the item is a tuple in that guard, why is... oooh `and` doesn't short-circuit evaluate.  So `(erlang/element 1 arg)` gets called even when arg is not a tuple.  Ok fix that and... oh gods I need to fix that in the .ast file don't I.  ...oh well it looks like `andalso` isn't a valid guard expr anyway.  Ummmmm.  ...and `element/2` is???
+
+...why is that `is_tuple(arg) and (element(1, arg) == '--fun'` and not just like...  `{'--fun' _}`?  And I have to figure out how to fix this in the AST.  Ummmmm.
+
+Well worst case I can write some Erlang code to do what I want, compile that to the AST, and splice that in.  Ooooor, find a pattern like what I want elsewhere.  Like in joxa-cmp-ctx.ast:
+
+```clojure 
+    ({:--fun _ arity}
+     (when (erlang/is_integer arity))
+     {raw-ctx (internal-defined-used-function? ref arity raw-ctx)})
+```
+
+```erlang
+    {c_clause,
+       [353,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+       [{c_tuple,
+         [353,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+         [{c_literal,
+           [353,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+           '--fun'},
+          {c_var,
+           [353,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+           '_#:G41982D0'},
+          {c_var,
+           [compiler_generated,353,
+            {file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+           '#:G263798'}]}],
+       {c_call,
+        [354,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+        {c_literal,
+         [354,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+         erlang},
+        {c_literal,
+         [354,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+         'and'},
+        [{c_call,
+          [354,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+          {c_literal,
+           [354,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+           erlang},
+          {c_literal,
+           [354,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+           is_integer},
+          [{c_var,
+            [354,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+            arity}]},
+         {c_call,
+          [compiler_generated,353,
+           {file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+          {c_literal,[compiler_generated],erlang},
+          {c_literal,
+           [compiler_generated,353,
+            {file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+           '=:='},
+          [{c_var,
+            [compiler_generated,353,
+             {file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+            '#:G263798'},
+           {c_var,
+            [compiler_generated,353,
+             {file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+            arity}]}]},
+       {c_tuple,
+        [355,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+        [{c_var,
+          [355,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+          'raw-ctx'},
+         {c_apply,
+          [355,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+          {c_var,
+           [355,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+           {'internal-defined-used-function?',3}},
+          [{c_var,
+            [355,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+            ref},
+           {c_var,
+            [355,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+            arity},
+           {c_var,
+            [355,{file,"/Users/emerrit/workspace/joxa/src/joxa-cmp-ctx.jxa"}],
+            'raw-ctx'}]}]}}
+```
+
+...Or, since I know the compiler runs on old OTP versions and they're not too difficult to build, just fix the compiler and have it compile itself.  That would... *probably* be the smart thing to do.
+
+We had a tool for that somewhere.  <https://github.com/asdf-vm/asdf>, that was it.  Add `.tool-versions` file, do `asdf install erlang`, wait for it to build, aaaaaaand now rebar doesn't work, huzzah.  Ok rebuild that with OTP 21 as well, make a copy of it into the joxa dir, clean up all the old beam files, do `make get-deps; make test` aaaaaaaand... all the tests fail.  Right.  Great.  Okay.
 
 # Language improvements
 
@@ -199,6 +303,7 @@ Or at least, I think they're improvements.  These are just notes of things that 
 * Docs use an old version of Sphinx.  Valid, but now would be better to rebuild them using ExDoc.  Not sure how well ExDoc supports random languages though.
 * Honestly would be nice if it just compiled to readable Erlang, like Fennel does.  Could we even make an antifennel-like Erlang-to-Joxa compiler?  Maybe!
 * Can we do anything with `dialyzer`?  Maybe.  That's a bit of a future subproject.
+* Hoo boy the backtraces could use some work.
 
 
 ## Bugs

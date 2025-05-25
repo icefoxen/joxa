@@ -354,6 +354,8 @@
               (joxa-cmp-util/add-to-annots var annots))
              (e
               (joxa-cmp-ctx/add-error-r-nil-ctx ctx path0 {:invalid-reference e arg}))))
+      ; ...why is this not just matching on
+      ; {:--fun _}
       (arg (when (erlang/and
                   (erlang/is_tuple arg)
                   (== (erlang/element 1 arg) :--fun)))
