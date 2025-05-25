@@ -314,6 +314,7 @@ Or at least, I think they're improvements.  These are just notes of things that 
 * Add backtrace vars to the `catch` form, see <https://www.erlang.org/docs/28/system/expressions.html#try>.  A fair number of bits in the compiler are stubbed out with `(let (buggo-stacktrace []) ...)` now.  ...unfortunately this now makes debugging the compiler rather more difficult...
 * `let*` exists, does it work the way I expect it to from CL?  Is there even a non-star `let`?
 * Just for reference, it appears that macros are not hygenic.  (This is probably the choice I'd make too.)
+* Oh we should do the Elixir thing where strings use binaries by default, and there's a separate type for list-strings.
 
 
 ## Tooling

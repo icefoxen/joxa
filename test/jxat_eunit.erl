@@ -89,7 +89,7 @@ cmd_test() ->
 
     Ctx = 'joxa-compiler':forms(Source, []),
     ?assertMatch(true,is_binary('joxa-cmp-ctx':'get-context'(result, Ctx))),
-    ?assertMatch({0, [$E, $s, $h, $e, $l, $l |_]}, 'jxat-eunit-cmd-test':'cmd-test'()).
+    ?assertMatch({0, "Erlang/OTP" ++ _}, 'jxat-eunit-cmd-test':'cmd-test'()).
 
 cmd_status_test() ->
     Source = <<"(ns jxat-eunit-cmd-status-test
@@ -103,7 +103,7 @@ cmd_status_test() ->
 
     Ctx = 'joxa-compiler':forms(Source, []),
     ?assertMatch(true,is_binary('joxa-cmp-ctx':'get-context'(result, Ctx))),
-    ?assertMatch([$E, $s, $h, $e, $l, $l |_],
+    ?assertMatch("Erlang/OTP" ++ _,
                  'jxat-eunit-cmd-status-test':'cmd-status-test'()),
 
     ?assertError({command_failed,[{namespace,'jxat-eunit-cmd-status-test'},
@@ -126,7 +126,7 @@ assert_cmd_status_test() ->
 
     Ctx = 'joxa-compiler':forms(Source, []),
     ?assertMatch(true,is_binary('joxa-cmp-ctx':'get-context'(result, Ctx))),
-    ?assertMatch([$E, $s, $h, $e, $l, $l |_],
+    ?assertMatch("Erlang/OTP" ++ _,
                  'jxat-eunit-assert-cmd-status-test':'assert-cmd-status-test'()),
     ?assertError({assertCmd_failed,[{namespace,'jxat-eunit-assert-cmd-status-test'},
                                     {line,8},
@@ -154,7 +154,7 @@ assert_cmd_output_test() ->
                    {line,8},
                    {command,"erl -s init stop"},
                    {expected_output,"Foo!"},
-                   {output, [$E, $s, $h | _]}]},
+                   {output, "Erlang/OTP" ++ _}]},
                  'jxat-eunit-assert-cmd-output-test':'assert-cmd-output-test2'()).
 
 debug_msg_test() ->
