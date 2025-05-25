@@ -285,6 +285,14 @@ Welp everything seems to build ok with OTP 21 now, so let's try building it with
 
 That is a project for tomorrow, however.
 
+(there's also some tests failing checking against the Erlang version line, but that may be related to the backtrace issue, so)
+
+```
+Erlang/OTP 21 [erts-10.3.5.19] [source] [64-bit] [smp:12:12] [ds:12:12:10] [async-threads:1] [hipe]
+Erlang/OTP 28 [erts-16.0] [source] [64-bit] [smp:12:12] [ds:12:12:10] [async-threads:1] [jit:ns]
+
+```
+
 # Language improvements
 
 Or at least, I think they're improvements.  These are just notes of things that stand out at me.
