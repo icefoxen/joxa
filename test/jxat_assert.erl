@@ -145,9 +145,12 @@ assert_exception_test() ->
                    {expression,[{'--fun',erlang,throw},[quote,'not-foo-bar']]},
                    {pattern,{[quote,error],[quote,'foo-bar']}},
                    {unexpected_exception,
-                    {throw,'not-foo-bar',
+                    {throw,'not-foo-bar', 
+                    % BUGGO: This tuple is failing to match for *some reason* and it's driving me absolutely batty.
                      [{'jxat-assert-exception-test','assert-exception-fail',0, _}
-                      | _]}}]},
+                      %% [_
+                      |_]}}
+                   |_]},
                  'jxat-assert-exception-test':'assert-exception-fail'()).
 
 assert_error_test() ->

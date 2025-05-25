@@ -313,6 +313,7 @@ Or at least, I think they're improvements.  These are just notes of things that 
 * Make it escape atoms with quotes so you can't generate invalid Erlang AST's by using variables named `else` and such.
 * Add backtrace vars to the `catch` form, see <https://www.erlang.org/docs/28/system/expressions.html#try>.  A fair number of bits in the compiler are stubbed out with `(let (buggo-stacktrace []) ...)` now.  ...unfortunately this now makes debugging the compiler rather more difficult...
 * `let*` exists, does it work the way I expect it to from CL?  Is there even a non-star `let`?
+* Just for reference, it appears that macros are not hygenic.  (This is probably the choice I'd make too.)
 
 
 ## Tooling
@@ -329,6 +330,7 @@ Or at least, I think they're improvements.  These are just notes of things that 
 * If we keep the AST compilation, try to make it output only the relative file path in the line numbers please, not the absolute path.  Makes git diff's much cleaner...
 * Gensym's too, plz.
 * Basic syntax highlighting for Helix would be nice.  Using the Clojure grammar is fine for now though.
+* whew, eunit *really* needs to more nicely show the diffs where pattern matches fail.
 
 
 ## Bugs
