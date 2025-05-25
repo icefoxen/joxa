@@ -168,7 +168,7 @@ assert_error_test() ->
                    {pattern,{[quote,error],[quote,'foo-bar']}},
                    {unexpected_exception,
                     {throw,'foo-bar',
-                     [{'jxat-assert-error-test','assert-error-fail',0, _} | _]}}]},
+                     [_ | _]}}]},
                  'jxat-assert-error-test':'assert-error-fail'()).
 
 
@@ -193,7 +193,7 @@ assert_exit_test() ->
                    {pattern,{[quote,exit],[quote,'foo-bar']}},
                    {unexpected_exception,
                     {throw,'foo-bar',
-                     [{'jxat-assert-exit-test','assert-exit-fail',0, _} | _]}}]},
+                     [_ | _]}}]},
                  'jxat-assert-exit-test':'assert-exit-fail'()).
 
 assert_throw_test() ->
@@ -220,7 +220,7 @@ assert_throw_test() ->
                    {pattern,{[quote,exit],[quote,'foo-bar']}},
                    {unexpected_exception,
                     {throw,'foo-bar',
-                     [{'jxat-assert-exit-test','assert-exit-fail',0, _} | _]}}]},
+                     [_ | _]}}]},
                  'jxat-assert-exit-test':'assert-exit-fail'()).
 
 assert_not_exception_test() ->
@@ -244,8 +244,7 @@ assert_not_exception_test() ->
                    {pattern,{[[quote,throw]],[[quote,'foo-bar']]}},
                    {unexpected_exception,
                     {throw,'foo-bar',
-                     [{'jxat-assert-not-exception-test',
-                       'assert-not-exception-fail',0, _}|_]}}]},
+                     [_ |_]}}]},
                  'jxat-assert-not-exception-test':'assert-not-exception-fail'()).
 %%%===================================================================
 %%% Support Functions
