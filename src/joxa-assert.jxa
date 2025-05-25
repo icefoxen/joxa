@@ -91,10 +91,15 @@
 
 ;; Note: Class and Term are patterns, and can not be used for value.
 ;; Term can be a guarded pattern, but Class cannot.
+;;
+;; TODO: We could probably provide better info to erlang/error now,
+;; it got more options in OTP 24:
+;; https://www.erlang.org/docs/28/apps/erts/erlang.html#error/3
 (defmacro+ assert-exception (class term expr)
   (let* (__v (joxa-core/gensym)
         __c (joxa-core/gensym)
-        __t (joxa-core/gensym))
+        __t (joxa-core/gensym)
+        __trace (joxa-core/gensym))
     `(joxa-core/try
       (let* (~__v ~expr)
         (erlang/error
@@ -107,6 +112,17 @@
            {:unexpected_success ~__v}]}))
       (catch
           ({~class ~term} :ok)
+          ; not sure if this pattern is actually produced by joxa-core/try,
+          ; but it seems like it *should* be where stacktraces get captured.
+          ({~__c ~__t ~__trace}
+           (erlang/error
+            {:assertException_failed
+             [{:namespace ($namespace)}
+              {:line ($line-number)}
+              {:expression (quote ~expr)}
+              {:pattern {(quote ~class) (quote ~term)}}
+              {:unexpected_exception
+               {~__c ~__t ~__trace}}]}))
           ({~__c ~__t}
            (erlang/error
             {:assertException_failed
@@ -116,7 +132,7 @@
               {:pattern {(quote ~class) (quote ~term)}}
               {:unexpected_exception
                {~__c ~__t
-                      (erlang/get_stacktrace)}}]}))))))
+                      [{:joxa-assert :dummy-stacktrace 3}]}}]}))))))
 
 (defmacro+ assert-error (term expr)
   `(joxa-assert/assert-exception :error ~term ~expr))
@@ -151,6 +167,6 @@
                                   {(quote ~class) (quote ~term)}}
                                  {:unexpected_exception,
                                   {~__c ~__t,
-                                        (erlang/get_stacktrace)}}]}))
+                                        [{:joxa-assert :dummy-stacktrace 3}]}}]}))
                 (_ :ok)))
              (_ :ok)))))))

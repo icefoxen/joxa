@@ -289,9 +289,12 @@ That is a project for tomorrow, however.
 
 ```
 Erlang/OTP 21 [erts-10.3.5.19] [source] [64-bit] [smp:12:12] [ds:12:12:10] [async-threads:1] [hipe]
-Erlang/OTP 28 [erts-16.0] [source] [64-bit] [smp:12:12] [ds:12:12:10] [async-threads:1] [jit:ns]
-
+Erlang/OTP 28 [erts-16.0] [source] [64-bit] [smp:12:12] [ds:12:12:10] [async-threads:1] [jit:ns] 
 ```
+
+## Next day
+
+
 
 # Language improvements
 
@@ -301,14 +304,15 @@ Or at least, I think they're improvements.  These are just notes of things that 
 * I respect needing to explicitly include the stdlib, esp. for a language that appears designed for embedding... but I don't like or want it.
 * `defn` for private and `defn+` for public functions feels worse than just `def` and `defp`.  Call me Elixir-brained.
 * Not being able to have `>=` and `<=` functions for `gte` and `lte` feels like a skill issue.  Might be a good reason for it?  I'll have to find out.
-* ...wait, we have `gte` and `lte` functions but not `gt` and `lt`?  No `not` either?  Wild.
+* ...wait, we have `gte` and `lte` functions but not `gt` and `lt`?  No `not` either?  Wild.  ...oooooh I bet it makes it harder to lex the `<<` and `>>` delimiters used for pattern literals.  That shouldn't be *too* bad though. Also I'm entertained by the realization that likely the reason this is Fine for the author is because you don't use numerical comparisons much in a compiler, so they never got annoyed at having to use it.  :D
 * Currently appears to be a one-pass compiler; you must make forward declarations for mutually recursive functions and structures.
-* My soul really needs the basic REPL to include the equivalent of the Erlang `c/1` functions, and readline editing.
+* My soul really needs the basic REPL to include the equivalent of the Erlang `c/1` functions, and readline editing.  ...actually the default environment doesn't include *most* of the things I'd want to have.  *Kinda* makes sense for an embedding language, but I'd rather have it opt-out than opt-in.
 * The distinctions between `if/when/unless` don't really spark joy
 * Records are as clunky as they are in Erlang (is this a bad thing?)
 * Doesn't include Erlang maps (they post-date it)
 * Make it escape atoms with quotes so you can't generate invalid Erlang AST's by using variables named `else` and such.
-* Add backtrace vars to the `catch` form, see <https://www.erlang.org/docs/28/system/expressions.html#try>
+* Add backtrace vars to the `catch` form, see <https://www.erlang.org/docs/28/system/expressions.html#try>.  A fair number of bits in the compiler are stubbed out with `(let (buggo-stacktrace []) ...)` now.  ...unfortunately this now makes debugging the compiler rather more difficult...
+* `let*` exists, does it work the way I expect it to from CL?  Is there even a non-star `let`?
 
 
 ## Tooling
@@ -324,6 +328,7 @@ Or at least, I think they're improvements.  These are just notes of things that 
 * Hoo boy the backtraces could use some work.
 * If we keep the AST compilation, try to make it output only the relative file path in the line numbers please, not the absolute path.  Makes git diff's much cleaner...
 * Gensym's too, plz.
+* Basic syntax highlighting for Helix would be nice.  Using the Clojure grammar is fine for now though.
 
 
 ## Bugs

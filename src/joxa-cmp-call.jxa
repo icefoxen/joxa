@@ -152,7 +152,8 @@
      (joxa-cmp-ctx/add-error-r-nil-ctx ctx path
                                        {:macro-failure {namespace function
                                                                   (erlang/length args)}
-                                                       {type body (erlang/get-stacktrace)}}))))
+                                                       ; dummy stacktrace
+                                                       {type body [{:joxa-cmp-call :call-macro 6}]}}))))
 
 (defn+ make-call (path0 ctx val args macro-only?)
   (let* (annots (joxa-cmp-ctx/annots-from-context [] path0 ctx))

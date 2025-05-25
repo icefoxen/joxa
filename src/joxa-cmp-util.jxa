@@ -23,7 +23,9 @@
        ({:error :undef}
         :false)
        (_
-        (erlang/raise type body (erlang/get-stacktrace)))))))
+        ; BUGGO: Stacktrace
+        (let* (buggo-stacktrace [{:joxa-cmp-util :get-joxa-info 3}])
+          (erlang/raise type body buggo-stacktrace)))))))
 
 (defn+ get-joxa-info (type namespace)
   (try*
@@ -34,9 +36,14 @@
        ({:error :undef}
         :false)
        (_
-        (erlang/raise type body (erlang/get-stacktrace)))))))
+        ; BUGGO: Stacktrace
+        (let* (buggo-stacktrace [{:joxa-cmp-util :get-joxa-info 2}])
+          (erlang/raise type body buggo-stacktrace)))))))
 
 
+; TODO: using strong_rand_bytes here is great for correctness but absolute
+; hell on wheels for debugging the generated AST.
+; Also you shouldn't seed it with `erlang/now` anyway.
 (defn gensym-body ()
   (let* (x (erlang/phash2 {(erlang/node) (erlang/now) (crypto/strong_rand_bytes 16)}))
     (lists/map (fn (el)

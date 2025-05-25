@@ -168,7 +168,7 @@
              ~@(if (needs-reraise? clauses)
                    (lists/append clauses
                                  [`(_
-                                    (erlang/raise ~type ~err (erlang/get_stacktrace)))])
+                                    (erlang/raise ~type ~err [{:joxa-core, :dummy-stacktrace, 2}]))])
                  clauses))))))))
 
 (defmacro+ let (args &rest body)
