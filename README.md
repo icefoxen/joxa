@@ -281,6 +281,10 @@ Ok I just broke the Makefile like a noob.  Theeeeeere we go, now it builds.  And
 
 ...what was I even trying to do?  Oh right, weird pattern matching in `joxa-cmp-expr/make-expr`.  Ok that seems easily fixed.
 
+Welp everything seems to build ok with OTP 21 now, so let's try building it with OTP 28!  Bootstrapping is a little fiddly, but it *mostly* seems to work, just dying on undefined reference to `get-stacktrace/0`.  Apparently replaced with <https://www.erlang.org/docs/28/system/expressions.html#try>.  We can stub that out for now; fixing it properly will require changing the `catch` form.  There's a couple places we need it; <https://www.erlang.org/docs/28/apps/erts/erlang.html#raise/3> may also be helpful reference.  Changing Joxa's `try` form will take a bit of work but there's some decent docs on *how* it works, and it doesn't look toooo hard to at least stub it out with something functional-for-now.
+
+That is a project for tomorrow, however.
+
 # Language improvements
 
 Or at least, I think they're improvements.  These are just notes of things that stand out at me.
@@ -296,6 +300,7 @@ Or at least, I think they're improvements.  These are just notes of things that 
 * Records are as clunky as they are in Erlang (is this a bad thing?)
 * Doesn't include Erlang maps (they post-date it)
 * Make it escape atoms with quotes so you can't generate invalid Erlang AST's by using variables named `else` and such.
+* Add backtrace vars to the `catch` form, see <https://www.erlang.org/docs/28/system/expressions.html#try>
 
 
 ## Tooling

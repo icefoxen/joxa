@@ -18,7 +18,6 @@
     (use (erlang :joxify
                  :only (==/2
                         or/2
-                        get-stacktrace/0
                         atom-to-list/1
                         list-to-binary/1
                         make-fun/3
@@ -73,7 +72,8 @@
    (catch
        (e
         (io/format "error: ~p : " [e])
-        (io/format "~p~n" [(get-stacktrace)])
+        (io/format "TODO: Get nice stack trace~n" []) 
+        ;(io/format "~p~n" [(get-stacktrace)])
         (loop ctx <<>>)))))
 
 (defn+ start ()
