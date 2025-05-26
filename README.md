@@ -312,6 +312,15 @@ That seems to be all the erlang+eunit tests?  Oh but this guy in the actual joxa
 
 Ok well that calls `erlang:get_module_info/2` which is undocumented, so it probably shouldn't be doing that.  It's doing it as part of the introspection stuff that loads etest though, and... it appears to be calling it correctly?  The `.eunit/joxa-test-joxification-use2.beam` file appears to exist though.  And when I comment out the `joxa-test-joxification-use2` portions then it just fails on earlier portions in the same file.  ...and I remove that file it fails on some earlier(?) test.  Soooo something cursed is happening with how it finds modules for eunit, and the last test it runs always fails.  Adding a new test at the end of `test/joxa-test-joxification.jxa` confirms this hypothesis.  Not really sure what to do about that, but I'm not gonna consider it a blocker for now.
 
+So...  Apart from that, the bootstrap works!  What's next on the list of things to do?
+
+* make `gensym` just make sequential atoms or something instead of calling `strong_rand_bytes`
+* Fix the `get_module_info/2` crash, ideally by making the test harness not use `get_module_info/2`
+* Add a way to get backtraces from the joxa `try/catch` structure
+* update rebar2 to rebar3
+* get rid of the gorram makefiles
+* figure out what the *fuck* it actually compiles to.  direct to beam, I think?  how?  Oh apparently with https://www.erlang.org/docs/28/apps/compiler/cerl.html ...How many undocumented API's does this use, anyway?
+
 # Language improvements
 
 Or at least, I think they're improvements.  These are just notes of things that stand out at me.
